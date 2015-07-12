@@ -111,6 +111,7 @@ public class MainRedButtonServer extends Observable {
         mainFrame.pack();
         mainFrame.setResizable(false);
         mainFrame.setVisible(true);
+        System.out.println("is visible!");
 
     }
 
@@ -160,6 +161,10 @@ public class MainRedButtonServer extends Observable {
         respondToStateChange();
     }
 
+    /**
+     * Changes the state of the button depending on the input received from the
+     * clients.
+     */
     private void respondToStateChange() {
         switch (currentState) {
             case "visible":

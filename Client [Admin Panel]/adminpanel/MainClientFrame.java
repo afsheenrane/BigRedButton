@@ -86,7 +86,8 @@ public class MainClientFrame {
         });
 
         mainFrame.pack();
-        mainFrame.revalidate();
+        mainFrame.validate();
+        mainFrame.repaint();
         mainFrame.setVisible(true);
     }
 
@@ -95,7 +96,7 @@ public class MainClientFrame {
 
         try {
             while ((buttonStatus = in.readLine()) != null) {
-
+                adminPane.updateStatusLabel(buttonStatus);
             }
         }
         catch (IOException e) {

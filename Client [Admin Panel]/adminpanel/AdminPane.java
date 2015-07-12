@@ -41,6 +41,8 @@ public class AdminPane extends JPanel {
         showBut = new JButton("SHOW RED BUTTON");
         hideBut = new JButton("HIDE RED BUTTON");
         killBut = new JButton("SHUTDOWN BUTTON");
+
+        statusLab = new JLabel("Button is currently VISIBLE");
     }
 
     private void addHandlers() {
@@ -76,6 +78,31 @@ public class AdminPane extends JPanel {
 
     public void updateStatusLabel(String status) {
         // TODO
+        switch (status) {
+            case "visible":
+                statusLab.setText("Button is currently VISIBLE");
+                break;
+
+            case "hidden":
+                statusLab.setText("Button is currently NOT VISIBLE");
+                break;
+
+            case "kill":
+                statusLab.setText("Button has been shutdown");
+                setServerDeadState();
+                break;
+
+            default:
+                statusLab.setText("Anomalous state: " + status
+                        + ". This should not happen");
+                break;
+        }
+    }
+
+    private void setServerDeadState() {
+        showBut.setEnabled(false);
+        hideBut.setEnabled(false);
+        killBut.setEnabled(false);
     }
 
     private class ButtonHandler implements ActionListener {
