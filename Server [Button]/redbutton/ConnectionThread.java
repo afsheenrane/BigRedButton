@@ -5,12 +5,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.swing.JOptionPane;
 
-public class ConnectionThread implements Runnable, Observer {
+public class ConnectionThread implements Runnable {
 
     // I/O streams
     private BufferedReader in;
@@ -78,7 +76,7 @@ public class ConnectionThread implements Runnable, Observer {
     /**
      * Closes input and output streams, and the socket.
      */
-    private void closeStreams() {
+    public void closeStreams() {
         try {
             in.close();
             out.close();
@@ -95,11 +93,10 @@ public class ConnectionThread implements Runnable, Observer {
         return connected;
     }
 
-    @Override
-    public void update(Observable o, Object arg) {
-        if ((MainRedButtonServer) o == parentFrame) {
-            out.println((String) arg);
-        }
+    public void tellClientStateChanged(String currentState) {
+        System.out.println("[SERVER] telling client state changed: "
+                + currentState);
+        out.println(currentState);
     }
 
 }

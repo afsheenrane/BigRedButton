@@ -10,7 +10,6 @@ import java.net.ServerSocket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Observable;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -19,7 +18,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-public class MainRedButtonServer extends Observable {
+public class MainRedButtonServer {
 
     private JFrame awaitingConnFrame;
     private JFrame buttonFrame;
@@ -29,6 +28,7 @@ public class MainRedButtonServer extends Observable {
     private final int PORT = 2222;
     private String currentState = "";
     private boolean buttonEnabled = false;
+    ArrayList<ConnectionThread> clients;
 
     public MainRedButtonServer() throws IOException {
         super();
@@ -46,27 +46,31 @@ public class MainRedButtonServer extends Observable {
         // Once the port has been successfully opened, wait for connections.
         createAwaitingConnWindow();
 
-        ArrayList<ConnectionThread> clients = new ArrayList<ConnectionThread>();
+        clients = new ArrayList<ConnectionThread>();
 
         while (true) {
             try {
-                clients.add(new ConnectionThread(serverSocket.accept(), this));
-                clients.get(clients.size() - 1).run();
-                addObserver(clients.get(clients.size() - 1));
+                if (clients.add(new ConnectionThread(serverSocket.accept(),
+                        this))) {
+                    if (!buttonEnabled) {
+                        showBigRedButton();
+                        buttonEnabled = true;
+                    }
+                    clients.get(clients.size() - 1).run();
+                }
             }
             catch (SocketException e) {
                 System.out.println(e.getMessage());
-            }
-            if (!buttonEnabled) {
-                showBigRedButton();
-                buttonEnabled = true;
+                System.exit(0);
             }
         }
 
     }
 
     private void showBigRedButton() {
+        // awaitingConnFrame.setVisible(false);
         awaitingConnFrame.dispose();
+        // awaitingConnFrame = null;
 
         buttonFrame = new JFrame();
 
@@ -82,7 +86,7 @@ public class MainRedButtonServer extends Observable {
         buttonFrame.setResizable(false);
 
         buttonFrame.requestFocusInWindow();
-        buttonFrame.setAlwaysOnTop(true);
+        // buttonFrame.setAlwaysOnTop(true);
 
         buttonFrame.setVisible(true);
     }
@@ -137,7 +141,15 @@ public class MainRedButtonServer extends Observable {
      */
     private void shutdownServer() {
         try {
+            for (ConnectionThread c : clients) {
+                c.closeStreams();
+            }
             serverSocket.close();
+
+            awaitingConnFrame.dispose();
+            buttonFrame.dispose();
+
+            System.out.println("shutdown compleyte");
             System.exit(0);
         }
         catch (IOException e) {
@@ -170,11 +182,21 @@ public class MainRedButtonServer extends Observable {
      * @param state the state to set.
      */
     public void setCurrentState(String state) {
+
+        System.out.println("[SERVER] input received: " + state);
+
         currentState = state;
         currentState.toLowerCase();
-        setChanged();
-        notifyObservers(currentState);
+        notifyClientsOfStateChange();
         respondToStateChange();
+    }
+
+    private void notifyClientsOfStateChange() {
+        // TODO Auto-generated method stub
+        for (ConnectionThread c : clients) {
+            c.tellClientStateChanged(currentState);
+        }
+
     }
 
     private void respondToStateChange() {

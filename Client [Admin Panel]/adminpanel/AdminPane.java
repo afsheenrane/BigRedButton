@@ -10,7 +10,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
-public class AdminPane extends JPanel {
+public class AdminPane extends JPanel implements ActionListener {
 
     private final MainClientFrame parentFrame;
 
@@ -46,11 +46,10 @@ public class AdminPane extends JPanel {
     }
 
     private void addHandlers() {
-        ButtonHandler buttonHandler = new ButtonHandler();
 
-        showBut.addActionListener(buttonHandler);
-        hideBut.addActionListener(buttonHandler);
-        killBut.addActionListener(buttonHandler);
+        showBut.addActionListener(this);
+        hideBut.addActionListener(this);
+        killBut.addActionListener(this);
 
     }
 
@@ -105,20 +104,17 @@ public class AdminPane extends JPanel {
         killBut.setEnabled(false);
     }
 
-    private class ButtonHandler implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (e.getSource() == showBut) {
-                parentFrame.tellServer("showbutton");
-            }
-            else if (e.getSource() == hideBut) {
-                parentFrame.tellServer("hidebutton");
-            }
-            else if (e.getSource() == killBut) {
-                if (checkKillButton() == JOptionPane.OK_OPTION) {
-                    parentFrame.tellServer("kill");
-                }
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == showBut) {
+            parentFrame.tellServer("showbutton");
+        }
+        else if (e.getSource() == hideBut) {
+            parentFrame.tellServer("hidebutton");
+        }
+        else if (e.getSource() == killBut) {
+            if (checkKillButton() == JOptionPane.OK_OPTION) {
+                parentFrame.tellServer("killserver");
             }
         }
 

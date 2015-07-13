@@ -11,11 +11,12 @@ import java.net.UnknownHostException;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 
 public class MainClientFrame {
     private final JFrame searchFrame;
     private JFrame adminFrame;
+
+    private AdminPane adminPane;
 
     private Socket socket;
     private BufferedReader in;
@@ -24,7 +25,7 @@ public class MainClientFrame {
     private final SearchPane searchPane;
 
     private final int PORT = 2222;
-    private final String buttonStatus;
+    private String buttonStatus;
 
     public MainClientFrame() {
 
@@ -55,6 +56,10 @@ public class MainClientFrame {
             // TODO open admin panel
             addAdminPane();
 
+            while ((buttonStatus = in.readLine()) != null) {
+                adminPane.updateStatusLabel(buttonStatus);
+            }
+
         }
         catch (UnknownHostException e) {
             closeAll();
@@ -72,7 +77,7 @@ public class MainClientFrame {
         searchFrame.dispose();
 
         adminFrame = new JFrame("Admin Panel");
-        JPanel adminPane = new AdminPane(this);
+        adminPane = new AdminPane(this);
 
         adminFrame.add(adminPane);
 
@@ -110,7 +115,9 @@ public class MainClientFrame {
      * @param command the command to send.
      */
     public void tellServer(String command) {
-
+        System.out.println("[CLIENT] telling server: " + command);
+        command.toLowerCase();
+        out.println(command);
     }
 
     /**
