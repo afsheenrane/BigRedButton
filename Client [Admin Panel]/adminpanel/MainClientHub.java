@@ -11,8 +11,9 @@ import java.net.UnknownHostException;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
-public class MainClientFrame {
+public class MainClientHub {
     private final JFrame searchFrame;
     private JFrame adminFrame;
 
@@ -27,7 +28,7 @@ public class MainClientFrame {
     private final int PORT = 2222;
     private String buttonStatus;
 
-    public MainClientFrame() {
+    public MainClientHub() {
 
         buttonStatus = " ";
 
@@ -53,8 +54,10 @@ public class MainClientFrame {
                     socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream(), true);
 
-            // TODO open admin panel
             addAdminPane();
+
+            // TODO create a input listening thread
+            // (new InputListener(in, adminPane)).run();
 
             while ((buttonStatus = in.readLine()) != null) {
                 adminPane.updateStatusLabel(buttonStatus);
@@ -139,7 +142,40 @@ public class MainClientFrame {
     }
 
     public static void main(String[] args) {
-        new MainClientFrame();
+
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new MainClientHub();
+            }
+        });
+    }
+
+}
+
+class InputListener implements Runnable {
+
+    private String buttonStatus;
+    private final BufferedReader in;
+    private final AdminPane adminPane;
+
+    public InputListener(BufferedReader in, AdminPane adminPane) {
+        this.in = in;
+        this.adminPane = adminPane;
+        buttonStatus = " ";
+    }
+
+    @Override
+    public void run() {
+        try {
+            while ((buttonStatus = in.readLine()) != null) {
+                adminPane.updateStatusLabel(buttonStatus);
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
 }

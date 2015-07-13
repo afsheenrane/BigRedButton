@@ -12,7 +12,7 @@ import javax.swing.JPanel;
 @SuppressWarnings("serial")
 public class AdminPane extends JPanel implements ActionListener {
 
-    private final MainClientFrame parentFrame;
+    private final MainClientHub parentFrame;
 
     private JLabel statusLab;
 
@@ -23,7 +23,7 @@ public class AdminPane extends JPanel implements ActionListener {
     private JButton hideBut;
     private JButton killBut;
 
-    public AdminPane(MainClientFrame mainClientFrame) {
+    public AdminPane(MainClientHub mainClientFrame) {
         super();
         parentFrame = mainClientFrame;
 

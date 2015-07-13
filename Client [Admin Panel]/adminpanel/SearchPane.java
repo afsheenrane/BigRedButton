@@ -14,6 +14,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+@SuppressWarnings("serial")
 public class SearchPane extends JPanel implements ActionListener {
 
     // private JComboBox<String> allComputerDropDown;
@@ -25,10 +26,10 @@ public class SearchPane extends JPanel implements ActionListener {
 
     private JPanel buttonHolder;
 
-    private final MainClientFrame parentFrame;
+    private final MainClientHub parentHub;
 
-    public SearchPane(MainClientFrame parentFrame) {
-        this.parentFrame = parentFrame;
+    public SearchPane(MainClientHub parentHub) {
+        this.parentHub = parentHub;
 
         setLayout(new BorderLayout());
 
@@ -42,7 +43,7 @@ public class SearchPane extends JPanel implements ActionListener {
     }
 
     private void initComponents() {
-        String[] allCompsList = getAllNetworkCompNames();
+        // String[] allCompsList = getAllNetworkCompNames();
 
         buttonHolder = new JPanel(new BorderLayout());
         buttonHolder.setBorder(BorderFactory.createEmptyBorder(4, 40, 4, 40));
@@ -101,7 +102,13 @@ public class SearchPane extends JPanel implements ActionListener {
             userInput = manualConnText.getText().trim();
 
             if (isCleanInput()) {
-                parentFrame.attemptConnection(userInput);
+                Thread queryThread = new Thread() {
+                    @Override
+                    public void run() {
+                        parentHub.attemptConnection(userInput);
+                    }
+                };
+                queryThread.start();
             }
         }
 
