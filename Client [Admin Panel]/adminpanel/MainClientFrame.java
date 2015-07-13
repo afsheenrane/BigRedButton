@@ -11,40 +11,42 @@ import java.net.UnknownHostException;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 public class MainClientFrame {
-    private final JFrame mainFrame;
+    private final JFrame searchFrame;
+    private JFrame adminFrame;
 
     private Socket socket;
     private BufferedReader in;
     private PrintWriter out;
 
     private final SearchPane searchPane;
-    private AdminPane adminPane;
 
     private final int PORT = 2222;
-    private String buttonStatus;
+    private final String buttonStatus;
 
     public MainClientFrame() {
 
         buttonStatus = " ";
 
-        mainFrame = new JFrame();
+        searchFrame = new JFrame();
         searchPane = new SearchPane(this);
 
-        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        searchFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        mainFrame.setTitle("Button Client");
-        mainFrame.add(searchPane);
+        searchFrame.setTitle("Button Client");
+        searchFrame.add(searchPane);
 
-        mainFrame.setSize(300, 115);
-        mainFrame.setResizable(false);
-        mainFrame.setLocation(600, 400);
-        mainFrame.setVisible(true);
+        searchFrame.setSize(300, 115);
+        searchFrame.setResizable(false);
+        searchFrame.setLocation(600, 400);
+        searchFrame.setVisible(true);
     }
 
     public void attemptConnection(String userInput) {
         try {
+
             socket = new Socket(userInput, PORT);
             in = new BufferedReader(new InputStreamReader(
                     socket.getInputStream()));
@@ -52,7 +54,6 @@ public class MainClientFrame {
 
             // TODO open admin panel
             addAdminPane();
-            listenForInput();
 
         }
         catch (UnknownHostException e) {
@@ -68,41 +69,28 @@ public class MainClientFrame {
     }
 
     private void addAdminPane() {
-        adminPane = new AdminPane(this);
+        searchFrame.dispose();
 
-        mainFrame.remove(searchPane);
-        mainFrame.add(adminPane);
+        adminFrame = new JFrame("Admin Panel");
+        JPanel adminPane = new AdminPane(this);
 
-        mainFrame.addWindowListener(new WindowAdapter() {
+        adminFrame.add(adminPane);
+
+        adminFrame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 if (checkQuit() == JOptionPane.OK_OPTION) {
                     closeAll();
-                    mainFrame.dispose();
+                    adminFrame.dispose();
                     System.exit(0);
                 }
             }
 
         });
 
-        mainFrame.pack();
-        mainFrame.validate();
-        mainFrame.repaint();
-        mainFrame.setVisible(true);
-    }
-
-    private void listenForInput() {
-        buttonStatus = " ";
-
-        try {
-            while ((buttonStatus = in.readLine()) != null) {
-                adminPane.updateStatusLabel(buttonStatus);
-            }
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        adminFrame.pack();
+        adminFrame.setResizable(false);
+        adminFrame.setVisible(true);
     }
 
     private void closeAll() {
@@ -122,7 +110,7 @@ public class MainClientFrame {
      * @param command the command to send.
      */
     public void tellServer(String command) {
-        out.println(command);
+
     }
 
     /**
