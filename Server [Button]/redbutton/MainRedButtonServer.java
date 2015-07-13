@@ -7,6 +7,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Observable;
@@ -20,7 +21,9 @@ import javax.swing.JPanel;
 
 public class MainRedButtonServer extends Observable {
 
-    private JFrame mainFrame;
+    private JFrame awaitingConnFrame;
+    private JFrame buttonFrame;
+
     private JPanel launchPane;
     private ServerSocket serverSocket = null;
     private final int PORT = 2222;
@@ -46,10 +49,14 @@ public class MainRedButtonServer extends Observable {
         ArrayList<ConnectionThread> clients = new ArrayList<ConnectionThread>();
 
         while (true) {
-            clients.add(new ConnectionThread(serverSocket.accept(), this));
-            clients.get(clients.size() - 1).run();
-            addObserver(clients.get(clients.size() - 1));
-
+            try {
+                clients.add(new ConnectionThread(serverSocket.accept(), this));
+                clients.get(clients.size() - 1).run();
+                addObserver(clients.get(clients.size() - 1));
+            }
+            catch (SocketException e) {
+                System.out.println(e.getMessage());
+            }
             if (!buttonEnabled) {
                 showBigRedButton();
                 buttonEnabled = true;
@@ -59,21 +66,31 @@ public class MainRedButtonServer extends Observable {
     }
 
     private void showBigRedButton() {
-        mainFrame.remove(launchPane);
+        awaitingConnFrame.dispose();
 
-        mainFrame.setLocation(1, 1);
+        buttonFrame = new JFrame();
+
+        buttonFrame.setFocusable(true);
+        buttonFrame.setLocation(1, 1);
+        buttonFrame.setUndecorated(true);
 
         JComponent buttonComp = new BigButtonPane(this);
-        mainFrame.add(buttonComp);
-        updateFrame();
-        mainFrame.setVisible(true);
 
+        buttonFrame.add(buttonComp);
+
+        buttonFrame.pack();
+        buttonFrame.setResizable(false);
+
+        buttonFrame.requestFocusInWindow();
+        buttonFrame.setAlwaysOnTop(true);
+
+        buttonFrame.setVisible(true);
     }
 
-    private void updateFrame() {
-        mainFrame.pack();
-        mainFrame.validate();
-        mainFrame.repaint();
+    private void updateFrame(JFrame frame) {
+        frame.pack();
+        frame.validate();
+        frame.repaint();
     }
 
     /**
@@ -85,14 +102,15 @@ public class MainRedButtonServer extends Observable {
         JLabel hostNameLabel = new JLabel("Computer Name: " + getMachineName());
         JLabel statusLabel = new JLabel("Awaiting connections on port " + PORT);
 
-        mainFrame = new JFrame("Button Server");
+        awaitingConnFrame = new JFrame("Button Server");
         launchPane = new JPanel(new BorderLayout());
 
-        mainFrame.setLocation(400, 400);
+        awaitingConnFrame.setLocation(400, 400);
 
         shutdownButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                // showBigRedButton();
                 shutdownServer();
             }
         });
@@ -101,17 +119,16 @@ public class MainRedButtonServer extends Observable {
         launchPane.add(shutdownButton, BorderLayout.CENTER);
         launchPane.add(hostNameLabel, BorderLayout.SOUTH);
 
-        mainFrame.addWindowListener(new WindowAdapter() {
+        awaitingConnFrame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 shutdownServer();
             }
         });
-        mainFrame.add(launchPane);
-        mainFrame.pack();
-        mainFrame.setResizable(false);
-        mainFrame.setVisible(true);
-        System.out.println("is visible!");
+        awaitingConnFrame.add(launchPane);
+        awaitingConnFrame.pack();
+        awaitingConnFrame.setResizable(false);
+        awaitingConnFrame.setVisible(true);
 
     }
 
@@ -121,7 +138,6 @@ public class MainRedButtonServer extends Observable {
     private void shutdownServer() {
         try {
             serverSocket.close();
-            mainFrame.dispose();
             System.exit(0);
         }
         catch (IOException e) {
@@ -161,21 +177,17 @@ public class MainRedButtonServer extends Observable {
         respondToStateChange();
     }
 
-    /**
-     * Changes the state of the button depending on the input received from the
-     * clients.
-     */
     private void respondToStateChange() {
         switch (currentState) {
             case "visible":
-                mainFrame.setVisible(true);
-                mainFrame.requestFocusInWindow();
-                updateFrame();
+                buttonFrame.setVisible(true);
+                buttonFrame.requestFocusInWindow();
+                updateFrame(buttonFrame);
                 break;
 
             case "hidden":
-                mainFrame.setVisible(false);
-                updateFrame();
+                buttonFrame.setVisible(false);
+                updateFrame(buttonFrame);
                 break;
 
             case "kill":
