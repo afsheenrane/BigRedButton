@@ -87,6 +87,7 @@ public class MainClientHub {
         adminFrame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
+                System.out.println("[ADMIN PANEL] window close requested!");
                 if (checkQuit() == JOptionPane.OK_OPTION) {
                     closeAll();
                     adminFrame.dispose();
@@ -131,7 +132,7 @@ public class MainClientHub {
     }
 
     public int checkQuit() {
-        if (buttonStatus.equalsIgnoreCase("buttondead"))
+        if (buttonStatus == null || buttonStatus.equalsIgnoreCase("buttondead"))
             return JOptionPane.OK_OPTION;
 
         return JOptionPane
