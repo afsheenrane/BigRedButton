@@ -50,13 +50,19 @@ public class MainRedButtonServer {
 
         while (true) {
             try {
-                if (clients.add(new ConnectionThread(serverSocket.accept(),
-                        this))) {
+                ConnectionThread ct;
+
+                ct = new ConnectionThread(serverSocket.accept(), this);
+                ct.run();
+
+                if (clients.add(ct)) {
+                    System.out
+                            .println("[SERVER] Client num: " + clients.size());
+
                     if (!buttonEnabled) {
                         showBigRedButton();
                         buttonEnabled = true;
                     }
-                    clients.get(clients.size() - 1).run();
                 }
             }
             catch (SocketException e) {
@@ -192,7 +198,6 @@ public class MainRedButtonServer {
     }
 
     private void notifyClientsOfStateChange() {
-        // TODO Auto-generated method stub
         for (ConnectionThread c : clients) {
             c.tellClientStateChanged(currentState);
         }

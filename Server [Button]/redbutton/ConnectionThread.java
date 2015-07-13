@@ -45,6 +45,9 @@ public class ConnectionThread implements Runnable {
                 if (input.equals("killserver")) {
                     parentFrame.setCurrentState("kill");
                 }
+                if (input.equals("clientleaving")) {
+                    // parentFrame.clientLeft
+                }
             }
         }
         catch (IOException e) {
