@@ -71,8 +71,8 @@ public class MainClientHub {
         }
         catch (IOException e) {
             closeAll();
-            searchPane
-                    .setStatusLabText("Cannot connect to host, check if server active.");
+            searchPane.setStatusLabText("Cannot connect to " + userInput
+                    + ", check if server active.");
         }
     }
 

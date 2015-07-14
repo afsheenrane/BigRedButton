@@ -10,6 +10,7 @@ import java.net.ServerSocket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -22,7 +23,6 @@ public class MainRedButtonServer {
     private JFrame awaitingConnFrame;
     private JFrame buttonFrame;
 
-    private JPanel launchPane;
     private ServerSocket serverSocket = null;
     private final int PORT = 2222;
     private String currentState = "visible";
@@ -109,7 +109,8 @@ public class MainRedButtonServer {
         JLabel statusLabel = new JLabel("Awaiting connections on port " + PORT);
 
         awaitingConnFrame = new JFrame("Button Server");
-        launchPane = new JPanel(new BorderLayout());
+
+        JPanel launchPane = new JPanel(new BorderLayout());
 
         awaitingConnFrame.setLocation(400, 400);
 
@@ -124,6 +125,8 @@ public class MainRedButtonServer {
         launchPane.add(statusLabel, BorderLayout.NORTH);
         launchPane.add(shutdownButton, BorderLayout.CENTER);
         launchPane.add(hostNameLabel, BorderLayout.SOUTH);
+
+        launchPane.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
 
         awaitingConnFrame.addWindowListener(new WindowAdapter() {
             @Override

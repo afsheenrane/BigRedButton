@@ -102,6 +102,9 @@ public class SearchPane extends JPanel implements ActionListener {
             userInput = manualConnText.getText().trim();
 
             if (isCleanInput()) {
+                statusLab.setText("Attemping connection to: "
+                        + manualConnText.getText());
+
                 Thread queryThread = new Thread() {
                     @Override
                     public void run() {
