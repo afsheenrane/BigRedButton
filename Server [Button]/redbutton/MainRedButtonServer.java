@@ -7,7 +7,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
@@ -26,9 +25,11 @@ public class MainRedButtonServer {
     private JPanel launchPane;
     private ServerSocket serverSocket = null;
     private final int PORT = 2222;
-    private String currentState = "";
+    private String currentState = "visible";
     private boolean buttonEnabled = false;
-    ArrayList<ConnectionThread> clients;
+
+    ArrayList<ConnectionThread> clientObjs;
+    ArrayList<Thread> clientThreads;
 
     public MainRedButtonServer() throws IOException {
         super();
@@ -46,31 +47,26 @@ public class MainRedButtonServer {
         // Once the port has been successfully opened, wait for connections.
         createAwaitingConnWindow();
 
-        clients = new ArrayList<ConnectionThread>();
+        clientThreads = new ArrayList<Thread>(5);
+        clientObjs = new ArrayList<ConnectionThread>(5);
 
         while (true) {
-            try {
-                ConnectionThread ct;
+            ConnectionThread ct;
 
-                ct = new ConnectionThread(serverSocket.accept(), this);
-                ct.run();
+            ct = new ConnectionThread(serverSocket.accept(), this);
 
-                if (clients.add(ct)) {
-                    System.out
-                            .println("[SERVER] Client num: " + clients.size());
+            Thread t = new Thread(ct);
+            t.start();
 
-                    if (!buttonEnabled) {
-                        showBigRedButton();
-                        buttonEnabled = true;
-                    }
+            if (clientThreads.add(t) && clientObjs.add(ct)) {
+                System.out.println("[SERVER] Client num: " + clientObjs.size());
+
+                if (!buttonEnabled) {
+                    showBigRedButton();
+                    buttonEnabled = true;
                 }
             }
-            catch (SocketException e) {
-                System.out.println(e.getMessage());
-                System.exit(0);
-            }
         }
-
     }
 
     private void showBigRedButton() {
@@ -147,13 +143,15 @@ public class MainRedButtonServer {
      */
     private void shutdownServer() {
         try {
-            for (ConnectionThread c : clients) {
+            for (ConnectionThread c : clientObjs) {
                 c.closeStreams();
             }
             serverSocket.close();
 
             awaitingConnFrame.dispose();
-            buttonFrame.dispose();
+
+            if (buttonFrame != null)
+                buttonFrame.dispose();
 
             System.out.println("shutdown compleyte");
             System.exit(0);
@@ -193,12 +191,13 @@ public class MainRedButtonServer {
 
         currentState = state;
         currentState.toLowerCase();
-        notifyClientsOfStateChange();
+        notifyClientsOfCurrentState();
         respondToStateChange();
     }
 
-    private void notifyClientsOfStateChange() {
-        for (ConnectionThread c : clients) {
+    public void notifyClientsOfCurrentState() {
+        System.out.println("[SERVER] num threads: " + clientThreads.size());
+        for (ConnectionThread c : clientObjs) {
             c.tellClientStateChanged(currentState);
         }
 
@@ -226,8 +225,27 @@ public class MainRedButtonServer {
         }
     }
 
+    public void removeDisconnectedClient() {
+        // TODO
+        for (int i = 0; i < clientObjs.size(); i++) {
+            if (!clientObjs.get(i).isConnected()) {
+                clientObjs.remove(i);
+                clientThreads.remove(i);
+            }
+        }
+
+        // Kills the button if no more clients connected.
+        if (clientObjs.size() == 0) {
+            shutdownServer();
+        }
+    }
+
     public static void main(String[] args) throws IOException {
-        new MainRedButtonServer();
+        try {
+            new MainRedButtonServer();
+        }
+        catch (IOException e) {
+        }
     }
 
 }

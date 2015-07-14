@@ -45,8 +45,13 @@ public class ConnectionThread implements Runnable {
                 if (input.equals("killserver")) {
                     parentFrame.setCurrentState("kill");
                 }
-                if (input.equals("clientleaving")) {
-                    // parentFrame.clientLeft
+                if (input.equals("clientdisconnected")) {
+                    connected = false;
+                    closeStreams();
+                    parentFrame.removeDisconnectedClient();
+                }
+                if (input.equals("requestcurrentstate")) {
+                    parentFrame.notifyClientsOfCurrentState();
                 }
             }
         }

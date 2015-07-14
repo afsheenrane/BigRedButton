@@ -32,6 +32,10 @@ public class AdminPane extends JPanel implements ActionListener {
         initComponents();
         addHandlers();
         addComponents();
+
+        // Asks for the current state of the button so that the status label is
+        // updated correctly.
+        parentFrame.tellServer("requestcurrentstate");
     }
 
     private void initComponents() {
@@ -42,7 +46,7 @@ public class AdminPane extends JPanel implements ActionListener {
         hideBut = new JButton("HIDE RED BUTTON");
         killBut = new JButton("SHUTDOWN BUTTON");
 
-        statusLab = new JLabel("Button is currently VISIBLE");
+        statusLab = new JLabel("Button state is UNKNOWN");
     }
 
     private void addHandlers() {

@@ -65,7 +65,7 @@ public class MainClientHub {
 
         }
         catch (UnknownHostException e) {
-            closeAll();
+            // closeAll();
             searchPane.setStatusLabText("Cannot find host: " + userInput);
 
         }
@@ -89,6 +89,7 @@ public class MainClientHub {
             public void windowClosing(WindowEvent e) {
                 System.out.println("[ADMIN PANEL] window close requested!");
                 if (checkQuit() == JOptionPane.OK_OPTION) {
+                    tellServer("clientdisconnected");
                     closeAll();
                     adminFrame.dispose();
                     System.exit(0);
@@ -104,9 +105,14 @@ public class MainClientHub {
 
     private void closeAll() {
         try {
-            socket.close();
-            in.close();
-            out.close();
+            if (socket != null)
+                socket.close();
+
+            if (in != null)
+                in.close();
+
+            if (out != null)
+                out.close();
         }
         catch (IOException e) {
         }
@@ -150,33 +156,6 @@ public class MainClientHub {
                 new MainClientHub();
             }
         });
-    }
-
-}
-
-class InputListener implements Runnable {
-
-    private String buttonStatus;
-    private final BufferedReader in;
-    private final AdminPane adminPane;
-
-    public InputListener(BufferedReader in, AdminPane adminPane) {
-        this.in = in;
-        this.adminPane = adminPane;
-        buttonStatus = " ";
-    }
-
-    @Override
-    public void run() {
-        try {
-            while ((buttonStatus = in.readLine()) != null) {
-                adminPane.updateStatusLabel(buttonStatus);
-            }
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-
     }
 
 }
