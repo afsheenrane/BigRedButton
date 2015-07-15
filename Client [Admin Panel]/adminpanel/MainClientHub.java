@@ -95,6 +95,7 @@ public class MainClientHub {
             closeAll();
             searchPane.setStatusLabText("Cannot connect to " + userInput
                     + ", check if server active.");
+            JOptionPane.showMessageDialog(null, e.getMessage());
         }
     }
 
