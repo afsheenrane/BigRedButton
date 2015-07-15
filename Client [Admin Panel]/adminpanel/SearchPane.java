@@ -3,10 +3,6 @@ package adminpanel;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.Enumeration;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -71,28 +67,6 @@ public class SearchPane extends JPanel implements ActionListener {
 
     public void setStatusLabText(String text) {
         statusLab.setText("<html>" + text + "</html>");
-    }
-
-    private String[] getAllNetworkCompNames() {
-
-        ArrayList<String> compNames = new ArrayList<String>();
-        Enumeration<NetworkInterface> e;
-        try {
-            e = NetworkInterface.getNetworkInterfaces();
-
-            while (e.hasMoreElements()) {
-                NetworkInterface ni = e.nextElement();
-                compNames.add(ni.getName());
-
-            }
-        }
-        catch (SocketException e1) {
-            compNames.clear();
-            compNames.add("Unable to fetch network computers");
-        }
-
-        return compNames.toArray(new String[1]);
-
     }
 
     @Override
