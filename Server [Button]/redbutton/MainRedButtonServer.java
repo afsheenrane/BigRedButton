@@ -75,9 +75,8 @@ public class MainRedButtonServer {
     }
 
     private void assignPort() {
-        // TODO Auto-generated method stub
         Properties prop = new Properties();
-        String path = "./resources/server_info.properties";
+        String path = "./button_resources/server_info.properties";
 
         InputStream in;
         try {
@@ -87,16 +86,17 @@ public class MainRedButtonServer {
         }
         catch (IOException | NumberFormatException e) {
             PORT = 2222;
-            JOptionPane.showMessageDialog(null, "Error reading from " + path
-                    + "\nSetting default PORT = 2222");
+            JOptionPane
+                    .showMessageDialog(null,
+                            "Error reading from " + path
+                                    + "\nSetting default PORT = 2222\nERROR: "
+                                    + e.getMessage());
         }
 
     }
 
     private void showBigRedButton() {
-        // awaitingConnFrame.setVisible(false);
         awaitingConnFrame.dispose();
-        // awaitingConnFrame = null;
 
         buttonFrame = new JFrame();
 
@@ -112,7 +112,7 @@ public class MainRedButtonServer {
         buttonFrame.setResizable(false);
 
         buttonFrame.requestFocusInWindow();
-        // buttonFrame.setAlwaysOnTop(true);
+        // buttonFrame.setAlwaysOnTop(true); TODO
 
         buttonFrame.setVisible(true);
     }

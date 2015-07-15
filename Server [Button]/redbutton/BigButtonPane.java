@@ -36,6 +36,8 @@ public class BigButtonPane extends JComponent {
 
     private ImageIcon bgPic;
 
+    private final String resPath = "./button_resources/";
+
     public BigButtonPane(MainRedButtonServer mainServer) {
 
         this.mainServer = mainServer;
@@ -57,12 +59,12 @@ public class BigButtonPane extends JComponent {
     }
 
     private void loadPicture() {
-        bgPic = new ImageIcon("./resources/background.png");
+        bgPic = new ImageIcon(resPath + "background.png");
     }
 
     private void playBell() {
         try {
-            InputStream in = new FileInputStream("./resources/button_bell.wav");
+            InputStream in = new FileInputStream(resPath + "button_bell.wav");
 
             AudioStream audioStream = new AudioStream(in);
 
