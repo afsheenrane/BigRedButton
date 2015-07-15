@@ -8,38 +8,39 @@ import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.BufferedInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Timer;
+import java.util.TimerTask;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
+
+import sun.audio.AudioPlayer;
+import sun.audio.AudioStream;
 
 @SuppressWarnings("serial")
 public class BigButtonPane extends JComponent {
 
     private final MainRedButtonServer mainServer;
 
-    private static int xres;
-    private static int yres;
+    private final int xres;
+    private final int yres;
 
-    private static int d;
-    private static int[] center = new int[2];
-    private static boolean isRed = true;
+    private boolean isRed = true;
 
-    private Clip clip;
+    private final int d;
+    private final int[] center = new int[2];
 
-    // private final ImageIcon kiaPic = new ImageIcon(getClass().getResource(
-    // "/client/kiaPic.png"));
+    private ImageIcon bgPic;
 
     public BigButtonPane(MainRedButtonServer mainServer) {
 
         this.mainServer = mainServer;
+
+        loadPicture();
 
         xres = (int) Toolkit.getDefaultToolkit().getScreenSize().getWidth();
         yres = (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight();
@@ -55,43 +56,36 @@ public class BigButtonPane extends JComponent {
         setFocusable(true);
     }
 
+    private void loadPicture() {
+        bgPic = new ImageIcon("./resources/background.png");
+    }
+
     private void playBell() {
         try {
-            InputStream is = getClass().getResourceAsStream(
-                    "/client/client_bell.wav");
-            InputStream bufferedIn = new BufferedInputStream(is);
+            InputStream in = new FileInputStream("./resources/button_bell.wav");
 
-            AudioInputStream audio = AudioSystem
-                    .getAudioInputStream(bufferedIn);
+            AudioStream audioStream = new AudioStream(in);
 
-            clip = AudioSystem.getClip();
-            clip.open(audio);
-            clip.start();
-
-        }
-        catch (UnsupportedAudioFileException uae) {
-            JOptionPane.showMessageDialog(null, uae);
+            AudioPlayer.player.start(audioStream);
         }
         catch (IOException ioe) {
             JOptionPane.showMessageDialog(null, "Audio cannot be found");
-        }
-        catch (LineUnavailableException lua) {
-            JOptionPane.showMessageDialog(null, lua);
         }
     }
 
     @Override
     public void paintComponent(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
-        if (isRed)
-            g2d.setColor(Color.RED);
-        else
-            g2d.setColor(Color.GREEN);
 
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // g2d.drawImage(kiaPic.getImage(), 0, 0, this);
+        g2d.drawImage(bgPic.getImage(), 0, 0, this);
+
+        if (isRed)
+            g2d.setColor(Color.RED);
+        else
+            g2d.setColor(Color.GREEN);
 
         // Draw the button
         g2d.fillOval(center[0] - (d / 2), center[1] - (d / 2), d, d);
@@ -115,15 +109,23 @@ public class BigButtonPane extends JComponent {
 
             // distance formula for hit detection
             if (dist <= d / 2) {
+                Timer makeGreen = new Timer();
+
+                makeGreen.schedule(new ButtonClicked(), 500);
+
                 isRed = false;
                 repaint();
+
                 mainServer.setCurrentState("ringbell");
-                // playBell();
+                playBell();
             }
         }
+    }
+
+    private class ButtonClicked extends TimerTask {
 
         @Override
-        public void mouseReleased(MouseEvent e) {
+        public void run() {
             isRed = true;
             repaint();
         }

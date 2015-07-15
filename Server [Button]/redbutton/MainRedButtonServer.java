@@ -5,10 +5,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Properties;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -24,7 +27,7 @@ public class MainRedButtonServer {
     private JFrame buttonFrame;
 
     private ServerSocket serverSocket = null;
-    private final int PORT = 2222;
+    private int PORT;
     private String currentState = "visible";
     private boolean buttonEnabled = false;
 
@@ -33,6 +36,8 @@ public class MainRedButtonServer {
 
     public MainRedButtonServer() throws IOException {
         super();
+
+        assignPort();
         // First try opening the port.
         try {
             serverSocket = new ServerSocket(PORT);
@@ -67,6 +72,25 @@ public class MainRedButtonServer {
                 }
             }
         }
+    }
+
+    private void assignPort() {
+        // TODO Auto-generated method stub
+        Properties prop = new Properties();
+        String path = "./resources/server_info.properties";
+
+        InputStream in;
+        try {
+            in = new FileInputStream(path);
+            prop.load(in);
+            PORT = Integer.parseInt(prop.getProperty("PORT"));
+        }
+        catch (IOException | NumberFormatException e) {
+            PORT = 2222;
+            JOptionPane.showMessageDialog(null, "Error reading from " + path
+                    + "\nSetting default PORT = 2222");
+        }
+
     }
 
     private void showBigRedButton() {
@@ -117,7 +141,6 @@ public class MainRedButtonServer {
         shutdownButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // showBigRedButton();
                 shutdownServer();
             }
         });
@@ -229,7 +252,6 @@ public class MainRedButtonServer {
     }
 
     public void removeDisconnectedClient() {
-        // TODO
         for (int i = 0; i < clientObjs.size(); i++) {
             if (!clientObjs.get(i).isConnected()) {
                 clientObjs.remove(i);

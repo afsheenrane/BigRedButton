@@ -56,9 +56,6 @@ public class MainClientHub {
 
             addAdminPane();
 
-            // TODO create a input listening thread
-            // (new InputListener(in, adminPane)).run();
-
             while ((buttonStatus = in.readLine()) != null) {
                 adminPane.updateStatusLabel(buttonStatus);
             }
