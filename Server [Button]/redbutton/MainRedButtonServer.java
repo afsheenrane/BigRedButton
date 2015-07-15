@@ -31,8 +31,10 @@ public class MainRedButtonServer {
     private String currentState = "visible";
     private boolean buttonEnabled = false;
 
-    ArrayList<ConnectionThread> clientObjs;
-    ArrayList<Thread> clientThreads;
+    private ArrayList<ConnectionThread> clientObjs;
+    private ArrayList<Thread> clientThreads;
+
+    private final String propPath = "./button_resources/server_info.properties";
 
     public MainRedButtonServer() throws IOException {
         super();
@@ -76,23 +78,36 @@ public class MainRedButtonServer {
 
     private void assignPort() {
         Properties prop = new Properties();
-        String path = "./button_resources/server_info.properties";
 
         InputStream in;
         try {
-            in = new FileInputStream(path);
+            in = new FileInputStream(propPath);
             prop.load(in);
             PORT = Integer.parseInt(prop.getProperty("PORT"));
         }
         catch (IOException | NumberFormatException e) {
             PORT = 2222;
-            JOptionPane
-                    .showMessageDialog(null,
-                            "Error reading from " + path
-                                    + "\nSetting default PORT = 2222\nERROR: "
-                                    + e.getMessage());
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Error reading from " + propPath
+                            + "\nSetting default PORT = 2222\nERROR: "
+                            + e.getMessage());
         }
 
+    }
+
+    private boolean getAlwaysOnTop() {
+        Properties prop = new Properties();
+
+        InputStream in;
+        try {
+            in = new FileInputStream(propPath);
+            prop.load(in);
+            return Boolean.parseBoolean(prop.getProperty("AlwaysOnTop"));
+        }
+        catch (IOException e) {
+            return false;
+        }
     }
 
     private void showBigRedButton() {
@@ -112,7 +127,7 @@ public class MainRedButtonServer {
         buttonFrame.setResizable(false);
 
         buttonFrame.requestFocusInWindow();
-        // buttonFrame.setAlwaysOnTop(true); TODO
+        buttonFrame.setAlwaysOnTop(getAlwaysOnTop());
 
         buttonFrame.setVisible(true);
     }
