@@ -3,11 +3,14 @@ package adminpanel;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Properties;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -25,12 +28,13 @@ public class MainClientHub {
 
     private final SearchPane searchPane;
 
-    private final int PORT = 2222;
+    private int PORT;
     private String buttonStatus;
 
     public MainClientHub() {
 
         buttonStatus = " ";
+        assignPort();
 
         searchFrame = new JFrame();
         searchPane = new SearchPane(this);
@@ -44,6 +48,27 @@ public class MainClientHub {
         searchFrame.setResizable(false);
         searchFrame.setLocation(600, 400);
         searchFrame.setVisible(true);
+    }
+
+    private void assignPort() {
+        Properties prop = new Properties();
+        String path = "./admin_resources/server_info.properties";
+
+        InputStream in;
+        try {
+            in = new FileInputStream(path);
+            prop.load(in);
+            PORT = Integer.parseInt(prop.getProperty("PORT"));
+        }
+        catch (IOException | NumberFormatException e) {
+            PORT = 2222;
+            JOptionPane
+                    .showMessageDialog(null,
+                            "Error reading from " + path
+                                    + "\nSetting default PORT = 2222\nERROR: "
+                                    + e.getMessage());
+        }
+
     }
 
     public void attemptConnection(String userInput) {

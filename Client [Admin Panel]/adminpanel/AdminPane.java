@@ -3,11 +3,17 @@ package adminpanel;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+
+import sun.audio.AudioPlayer;
+import sun.audio.AudioStream;
 
 @SuppressWarnings("serial")
 public class AdminPane extends JPanel implements ActionListener {
@@ -79,6 +85,20 @@ public class AdminPane extends JPanel implements ActionListener {
                         "Kill Button Confirmation", JOptionPane.WARNING_MESSAGE);
     }
 
+    private void playBell() {
+        try {
+            InputStream in = new FileInputStream(
+                    "./admin_resources/client_bell.wav");
+
+            AudioStream audioStream = new AudioStream(in);
+
+            AudioPlayer.player.start(audioStream);
+        }
+        catch (IOException ioe) {
+            JOptionPane.showMessageDialog(null, "Audio cannot be found");
+        }
+    }
+
     public void updateStatusLabel(String status) {
         // TODO
         switch (status) {
@@ -93,6 +113,10 @@ public class AdminPane extends JPanel implements ActionListener {
             case "kill":
                 statusLab.setText("Button has been shutdown");
                 setServerDeadState();
+                break;
+
+            case "ringbell":
+                playBell();
                 break;
 
             default:
