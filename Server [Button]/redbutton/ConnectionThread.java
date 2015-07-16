@@ -56,7 +56,6 @@ public class ConnectionThread implements Runnable {
             }
         }
         catch (IOException e) {
-
         }
 
     }
@@ -66,8 +65,8 @@ public class ConnectionThread implements Runnable {
      */
     private boolean initializeIOStreams() {
         try {
-            in = new BufferedReader(new InputStreamReader(
-                    socket.getInputStream()));
+            in = new BufferedReader(
+                    new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream(), true);
             return true;
         }
@@ -102,8 +101,8 @@ public class ConnectionThread implements Runnable {
     }
 
     public void tellClientStateChanged(String currentState) {
-        System.out.println("[SERVER] telling client state changed: "
-                + currentState);
+        // System.out.println(
+        // "[SERVER] telling client state changed: " + currentState);
         out.println(currentState);
     }
 
