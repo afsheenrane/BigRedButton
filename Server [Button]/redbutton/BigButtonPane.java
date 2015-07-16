@@ -58,10 +58,16 @@ public class BigButtonPane extends JComponent {
         setFocusable(true);
     }
 
+    /**
+     * Loads in the background picture from the resources folder.
+     */
     private void loadPicture() {
         bgPic = new ImageIcon(resPath + "background.png");
     }
 
+    /**
+     * Loads in and plays the bell from the resources folder.
+     */
     private void playBell() {
         try {
             InputStream in = new FileInputStream(resPath + "button_bell.wav");

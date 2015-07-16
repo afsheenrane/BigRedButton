@@ -31,8 +31,8 @@ public class MainRedButtonServer {
     private String currentState = "visible";
     private boolean buttonEnabled = false;
 
-    private ArrayList<ConnectionThread> clientObjs;
-    private ArrayList<Thread> clientThreads;
+    private final ArrayList<ConnectionThread> clientObjs;
+    private final ArrayList<Thread> clientThreads;
 
     private final String propPath = "./button_resources/server_info.properties";
 
@@ -45,8 +45,8 @@ public class MainRedButtonServer {
             serverSocket = new ServerSocket(PORT);
         }
         catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Cannot listen on port: "
-                    + PORT + "\nPossibly another server open on that port");
+            JOptionPane.showMessageDialog(null, "Cannot listen on port: " + PORT
+                    + "\nPossibly another server open on that port");
             serverSocket.close();
             System.exit(1);
         }
@@ -66,8 +66,8 @@ public class MainRedButtonServer {
             t.start();
 
             if (clientThreads.add(t) && clientObjs.add(ct)) {
-                System.out.println("[SERVER] Client num: " + clientObjs.size());
-
+                // System.out.println("[SERVER] Client num: " +
+                // clientObjs.size());
                 if (!buttonEnabled) {
                     showBigRedButton();
                     buttonEnabled = true;
@@ -76,6 +76,9 @@ public class MainRedButtonServer {
         }
     }
 
+    /**
+     * Reads and sets port number from .properties file.
+     */
     private void assignPort() {
         Properties prop = new Properties();
 
@@ -87,8 +90,7 @@ public class MainRedButtonServer {
         }
         catch (IOException | NumberFormatException e) {
             PORT = 2222;
-            JOptionPane.showMessageDialog(
-                    null,
+            JOptionPane.showMessageDialog(null,
                     "Error reading from " + propPath
                             + "\nSetting default PORT = 2222\nERROR: "
                             + e.getMessage());
@@ -96,6 +98,11 @@ public class MainRedButtonServer {
 
     }
 
+    /**
+     * Reads and returns the AlwaysOnTop property from the .properties file.
+     * 
+     * @return the value of AlwaysOnTop.
+     */
     private boolean getAlwaysOnTop() {
         Properties prop = new Properties();
 
@@ -110,6 +117,9 @@ public class MainRedButtonServer {
         }
     }
 
+    /**
+     * Shows the BIG RED BUTTON!!
+     */
     private void showBigRedButton() {
         awaitingConnFrame.dispose();
 
@@ -194,7 +204,7 @@ public class MainRedButtonServer {
             if (buttonFrame != null)
                 buttonFrame.dispose();
 
-            System.out.println("shutdown compleyte");
+            // System.out.println("shutdown compleyte");
             System.exit(0);
         }
         catch (IOException e) {
@@ -228,7 +238,7 @@ public class MainRedButtonServer {
      */
     public void setCurrentState(String state) {
 
-        System.out.println("[SERVER] input received: " + state);
+        // System.out.println("[SERVER] input received: " + state);
 
         currentState = state;
         currentState.toLowerCase();
@@ -236,14 +246,19 @@ public class MainRedButtonServer {
         respondToStateChange();
     }
 
+    /**
+     * Tells all connected clients the current state of the Button.
+     */
     public void notifyClientsOfCurrentState() {
-        System.out.println("[SERVER] num threads: " + clientThreads.size());
         for (ConnectionThread c : clientObjs) {
             c.tellClientStateChanged(currentState);
         }
 
     }
 
+    /**
+     * Sets the buttons state depending on the state requested.
+     */
     private void respondToStateChange() {
         switch (currentState) {
             case "visible":
@@ -266,6 +281,9 @@ public class MainRedButtonServer {
         }
     }
 
+    /**
+     * Removes any trace of clients that have disconnected from the button.
+     */
     public void removeDisconnectedClient() {
         for (int i = 0; i < clientObjs.size(); i++) {
             if (!clientObjs.get(i).isConnected()) {

@@ -13,7 +13,6 @@ import javax.swing.JTextField;
 @SuppressWarnings("serial")
 public class SearchPane extends JPanel implements ActionListener {
 
-    // private JComboBox<String> allComputerDropDown;
     private JButton connectButton;
     private JTextField manualConnText;
     private JLabel statusLab;
@@ -38,8 +37,10 @@ public class SearchPane extends JPanel implements ActionListener {
         setVisible(true);
     }
 
+    /**
+     * Initialize all the components that will go on this panel.
+     */
     private void initComponents() {
-        // String[] allCompsList = getAllNetworkCompNames();
 
         buttonHolder = new JPanel(new BorderLayout());
         buttonHolder.setBorder(BorderFactory.createEmptyBorder(4, 40, 4, 40));
@@ -48,8 +49,6 @@ public class SearchPane extends JPanel implements ActionListener {
         manualConnText = new JTextField("Enter host name", 16);
 
         statusLab = new JLabel("Waiting for host name");
-        // allComputerDropDown = new JComboBox<String>(allCompsList);
-
     }
 
     private void addEventHandlers() {
@@ -66,7 +65,8 @@ public class SearchPane extends JPanel implements ActionListener {
     }
 
     public void setStatusLabText(String text) {
-        statusLab.setText("<html>" + text + "</html>");
+        statusLab.setText("<html>" + text + "</html>"); // html tags to wrap
+                                                        // text.
     }
 
     @Override
@@ -76,8 +76,8 @@ public class SearchPane extends JPanel implements ActionListener {
             userInput = manualConnText.getText().trim();
 
             if (isCleanInput()) {
-                statusLab.setText("Attemping connection to: "
-                        + manualConnText.getText());
+                statusLab.setText(
+                        "Attemping connection to: " + manualConnText.getText());
 
                 Thread queryThread = new Thread() {
                     @Override
@@ -91,6 +91,11 @@ public class SearchPane extends JPanel implements ActionListener {
 
     }
 
+    /**
+     * Checks if input is sanitary.
+     * 
+     * @return true if the input is a valid string, false otherwise.
+     */
     private boolean isCleanInput() {
         if (userInput.length() <= 0) {
             manualConnText.setText("Invalid Input");

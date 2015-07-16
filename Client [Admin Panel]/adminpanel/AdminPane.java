@@ -44,6 +44,9 @@ public class AdminPane extends JPanel implements ActionListener {
         parentFrame.tellServer("requestcurrentstate");
     }
 
+    /**
+     * Initialize all the buttons and panels.
+     */
     private void initComponents() {
         topPane = new JPanel();
         botPane = new JPanel();
@@ -55,6 +58,9 @@ public class AdminPane extends JPanel implements ActionListener {
         statusLab = new JLabel("Button state is UNKNOWN");
     }
 
+    /**
+     * Add input handlers to the components.
+     */
     private void addHandlers() {
 
         showBut.addActionListener(this);
@@ -63,6 +69,9 @@ public class AdminPane extends JPanel implements ActionListener {
 
     }
 
+    /**
+     * Add the components to the panel.
+     */
     private void addComponents() {
 
         topPane.add(showBut);
@@ -76,15 +85,21 @@ public class AdminPane extends JPanel implements ActionListener {
 
     }
 
+    /**
+     * Check for the user to confirm that they want to terminate the button.
+     * 
+     * @return JOptionPane.OK_OPTION if the user want to terminate the button.
+     */
     private int checkKillButton() {
-        return JOptionPane
-                .showConfirmDialog(
-                        null,
-                        "Are you sure you want to close the Big Red Button?\n"
-                                + "This will disconnect you and all other computers which are connected to it.",
-                        "Kill Button Confirmation", JOptionPane.WARNING_MESSAGE);
+        return JOptionPane.showConfirmDialog(null,
+                "Are you sure you want to close the Big Red Button?\n"
+                        + "This will disconnect you and all other computers which are connected to it.",
+                "Kill Button Confirmation", JOptionPane.WARNING_MESSAGE);
     }
 
+    /**
+     * Load the bell from audio file and play the sound.
+     */
     private void playBell() {
         try {
             InputStream in = new FileInputStream(
@@ -99,8 +114,12 @@ public class AdminPane extends JPanel implements ActionListener {
         }
     }
 
+    /**
+     * Changes the current displayed status of the button.
+     * 
+     * @param status the status of the button.
+     */
     public void updateStatusLabel(String status) {
-        // TODO
         switch (status) {
             case "visible":
                 statusLab.setText("Button is currently VISIBLE");
@@ -112,6 +131,7 @@ public class AdminPane extends JPanel implements ActionListener {
 
             case "kill":
                 statusLab.setText("Button has been shutdown");
+                parentFrame.closeAll();
                 setServerDeadState();
                 break;
 
@@ -126,6 +146,9 @@ public class AdminPane extends JPanel implements ActionListener {
         }
     }
 
+    /**
+     * Disables all buttons because the server has been terminated.
+     */
     private void setServerDeadState() {
         showBut.setEnabled(false);
         hideBut.setEnabled(false);

@@ -50,6 +50,9 @@ public class MainClientHub {
         searchFrame.setVisible(true);
     }
 
+    /**
+     * Reads the port number from the .properties file.
+     */
     private void assignPort() {
         Properties prop = new Properties();
         String path = "./admin_resources/server_info.properties";
@@ -62,21 +65,25 @@ public class MainClientHub {
         }
         catch (IOException | NumberFormatException e) {
             PORT = 2222;
-            JOptionPane
-                    .showMessageDialog(null,
-                            "Error reading from " + path
-                                    + "\nSetting default PORT = 2222\nERROR: "
-                                    + e.getMessage());
+            JOptionPane.showMessageDialog(null,
+                    "Error reading from " + path
+                            + "\nSetting default PORT = 2222\nERROR: "
+                            + e.getMessage());
         }
 
     }
 
+    /**
+     * Attempts to connect to the computer name specified in userInput.
+     * 
+     * @param userInput the name of the computer.
+     */
     public void attemptConnection(String userInput) {
         try {
 
             socket = new Socket(userInput, PORT);
-            in = new BufferedReader(new InputStreamReader(
-                    socket.getInputStream()));
+            in = new BufferedReader(
+                    new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream(), true);
 
             addAdminPane();
@@ -99,6 +106,10 @@ public class MainClientHub {
         }
     }
 
+    /**
+     * Adds the admin panel to the current frame. Also sets its window closing
+     * event to double check with the client if they want to shutdown.
+     */
     private void addAdminPane() {
         searchFrame.dispose();
 
@@ -110,7 +121,7 @@ public class MainClientHub {
         adminFrame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                System.out.println("[ADMIN PANEL] window close requested!");
+                // System.out.println("[ADMIN PANEL] window close requested!");
                 if (checkQuit() == JOptionPane.OK_OPTION) {
                     tellServer("clientdisconnected");
                     closeAll();
@@ -126,7 +137,10 @@ public class MainClientHub {
         adminFrame.setVisible(true);
     }
 
-    private void closeAll() {
+    /**
+     * Closes the input and output streams, and then the socket.
+     */
+    public void closeAll() {
         try {
             if (socket != null)
                 socket.close();
@@ -148,7 +162,7 @@ public class MainClientHub {
      * @param command the command to send.
      */
     public void tellServer(String command) {
-        System.out.println("[CLIENT] telling server: " + command);
+        // System.out.println("[CLIENT] telling server: " + command);
         command.toLowerCase();
         out.println(command);
     }
@@ -160,15 +174,21 @@ public class MainClientHub {
         return buttonStatus;
     }
 
+    /**
+     * Asks the user if they are sure they want to close their admin panel.
+     * If the button has terminated, automatically close it without a
+     * confirmation.
+     * 
+     * @return JOptionPane.OK_OPTION if the user confirms that they want to
+     *         close the admin panel. Or if the button has been terminated.
+     */
     public int checkQuit() {
         if (buttonStatus == null || buttonStatus.equalsIgnoreCase("buttondead"))
             return JOptionPane.OK_OPTION;
 
-        return JOptionPane
-                .showConfirmDialog(
-                        null,
-                        "Closing this will cause you to disconnect from the Big Red Button.\nAre you sure you want to exit?",
-                        "Shutdown confirmation", JOptionPane.WARNING_MESSAGE);
+        return JOptionPane.showConfirmDialog(null,
+                "Closing this will cause you to disconnect from the Big Red Button.\nAre you sure you want to exit?",
+                "Shutdown confirmation", JOptionPane.WARNING_MESSAGE);
     }
 
     public static void main(String[] args) {
